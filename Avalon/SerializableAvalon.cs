@@ -13,7 +13,7 @@ namespace Avalon
     public struct SerializableAvalon
     {
         [DataMember]
-        public int Definition { get; set; }
+        public byte Definition { get; set; }
         [DataMember]
         public bool isActive { get; set; }
         [DataMember]

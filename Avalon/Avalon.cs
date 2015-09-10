@@ -6,18 +6,25 @@
     using Windows.UI.Xaml.Media;
     using Windows.UI.Xaml.Input;
     using Windows.UI;
-    using System.Diagnostics;
-    using System.Runtime.Serialization;
     using path = Windows.UI.Xaml.Shapes.Path;
     public delegate void Activation(Avalon A);
-    [DataContract]
     public sealed class Avalon : path
     {
-        [DataMember]
         private bool isActive = false;
-        [DataMember]
+        private bool IsActive
+        {
+            get
+            {
+                return isActive;
+            }
+            set
+            {
+                isActive = value;
+                Avalon_Holding(null, null);
+                Avalon_Tapped(null, null);
+            }
+        }
         public Avalon Real { get; private set; }
-        [DataMember]
         public Brush fill
         {
             get
@@ -29,20 +36,19 @@
 
                 if (Real != null)
                 {
-                    Debug.WriteLine("I'm filling now");
                     Real.Fill = value;
                 }
 
             }
         }
-        [DataMember]
         Activation Attach, Detach;
-        [DataMember]
         ManipulationDeltaEventHandler Router;
-        public Avalon(GeometryFactory Segments, Activation Attach, Activation Detach, ManipulationDeltaEventHandler Router, bool Real = false)
+        byte definition;
+        public Avalon(GeometryFactory Segments, Activation Attach, Activation Detach, ManipulationDeltaEventHandler Router,byte definition , bool Real = false)
         {
             if (!Real)
             {
+                this.definition = definition;
                 Data = Segments.Pattern();
                 ManipulationMode = Windows.UI.Xaml.Input.ManipulationModes.All;
                 RenderTransform = new CompositeTransform();
@@ -55,7 +61,7 @@
                 Holding += Avalon_Holding;
                 Loaded += Avalon_Loaded;
                 //ManipulationDelta += Avalon_ManipulationDelta;
-                this.Real = new Avalon(Segments, Attach, Detach, null, true);
+                this.Real = new Avalon(Segments, Attach, Detach, null, definition,true);
                 this.Real.RenderTransform = RenderTransform;
                 this.Real.RenderTransformOrigin = RenderTransformOrigin;
                 this.Real.Data = Segments.Pattern();
@@ -66,14 +72,10 @@
 
         }
 
-        void Avalon_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
-        {
-            Router(sender, e);
-        }
+
 
         private void Avalon_Loaded(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("I have been loaded");
             (this.Parent as Panel).Children.Add(Real);
         }
 
@@ -113,6 +115,21 @@
                 }
             }
 
+        }
+        public SerializableAvalon SaveState()
+        {
+            return new SerializableAvalon { isActive = this.isActive, fill = (fill as SolidColorBrush).Color, Rotation = (RenderTransform as CompositeTransform).Rotation, Scale = (RenderTransform as CompositeTransform).ScaleX, TranslateX = (RenderTransform as CompositeTransform).TranslateX, TranslateY = (RenderTransform as CompositeTransform).TranslateY, Definition = this.definition };
+        }
+        public void RestorState(SerializableAvalon State)
+        {
+            isActive = State.isActive;
+            fill = new SolidColorBrush(State.fill);
+            CompositeTransform c = this.RenderTransform as CompositeTransform;
+            c.Rotation = State.Rotation;
+            c.ScaleX = State.Scale;
+            c.ScaleY = State.Scale;
+            c.TranslateX = State.TranslateX;
+            c.TranslateY = State.TranslateY;
         }
     }
 }
