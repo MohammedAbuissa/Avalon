@@ -11,6 +11,7 @@
     public sealed class Avalon : path
     {
         private bool isActive = false;
+        Panel pp;
         private bool IsActive
         {
             get
@@ -37,6 +38,8 @@
                 if (Real != null)
                 {
                     Real.Fill = value;
+                    Color x = (value as SolidColorBrush).Color;
+                    this.Stroke = new SolidColorBrush(new Color { A = 255, B = (byte)(255 - x.B), G = (byte)(255 - x.G), R = (byte)(255 - x.R) });
                 }
 
             }
@@ -54,17 +57,20 @@
                 RenderTransform = new CompositeTransform();
                 RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);
                 Fill = new SolidColorBrush(new Color { A = 0, R = 0, G = 0, B = 0 });
+                StrokeThickness = 2;
                 this.Attach = Attach;
                 this.Detach = Detach;
                 this.Router = Router;
                 Tapped += Avalon_Tapped;
                 Holding += Avalon_Holding;
                 Loaded += Avalon_Loaded;
-                //ManipulationDelta += Avalon_ManipulationDelta;
+                Unloaded += Avalon_Unloaded;
+                ManipulationDelta += Avalon_ManipulationDelta;
                 this.Real = new Avalon(Segments, Attach, Detach, null, definition,true);
                 this.Real.RenderTransform = RenderTransform;
                 this.Real.RenderTransformOrigin = RenderTransformOrigin;
                 this.Real.Data = Segments.Pattern();
+                this.Real.Fill = new SolidColorBrush(Colors.RosyBrown);
                 Canvas.SetZIndex(this, 2);
                 Canvas.SetZIndex(this.Real, 0);
                 Avalon_Holding(null, null);
@@ -72,11 +78,25 @@
 
         }
 
+        private void Avalon_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
+        {
+            Router(sender, e);
+        }
 
+        private void Avalon_Unloaded(object sender, RoutedEventArgs e)
+        {
+                //pp.Children.Remove(Real);
+        }
 
         private void Avalon_Loaded(object sender, RoutedEventArgs e)
         {
+            if(Real.Parent != null)
+            {
+                (Real.Parent as Panel).Children.Remove(Real);
+            }
             (this.Parent as Panel).Children.Add(Real);
+
+            pp = this.Parent as Panel;
         }
 
         private void Avalon_Holding(object sender, HoldingRoutedEventArgs e)
@@ -86,6 +106,8 @@
                 Attach(this);
                 Real.Opacity = 0.5;
                 isActive = true;
+                Color RealColor = (Real.Fill as SolidColorBrush).Color;
+                Stroke = new SolidColorBrush(new Color { A = 255, B = (byte)(255 - RealColor.B), G = (byte)(255 - RealColor.G), R = (byte)(255 - RealColor.R) });
             }
         }
         public void Replaced()
@@ -99,6 +121,7 @@
                 Detach(this);
                 Real.Opacity = 1;
                 isActive = false;
+                Stroke = null;
             }
         }
         public void Manipulation(ManipulationDeltaRoutedEventArgs e)
@@ -122,7 +145,7 @@
         }
         public void RestorState(SerializableAvalon State)
         {
-            isActive = State.isActive;
+            Avalon_Tapped(null, null);
             fill = new SolidColorBrush(State.fill);
             CompositeTransform c = this.RenderTransform as CompositeTransform;
             c.Rotation = State.Rotation;
@@ -131,5 +154,11 @@
             c.TranslateX = State.TranslateX;
             c.TranslateY = State.TranslateY;
         }
+        public void Delete()
+        {
+            (this.Real.Parent as Panel).Children.Remove(this.Real);
+            (this.Parent as Panel).Children.Remove(this);
+        }
+
     }
 }

@@ -66,5 +66,13 @@
             dcs.WriteObject(Return, Serialize);
             return Return;
         }
+        public void Delete(Avalon A)
+        {
+            FactoredItems.Remove(A);
+        }
+        public void FreshStart()
+        {
+            FactoredItems.Clear();
+        }
     }
 }

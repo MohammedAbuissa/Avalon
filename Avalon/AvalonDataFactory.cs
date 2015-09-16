@@ -5,13 +5,9 @@
     using Windows.Foundation;
     using Windows.UI.Xaml.Media;
     using System.Runtime.Serialization;
-    [DataContract]
-    [KnownType(typeof(ArcData))]
     public class AvalonPolygonFactory : GeometryFactory
     {
-        [DataMember]
         int sides;
-        [DataMember]
         string ob;
         public AvalonPolygonFactory(int Sides, string ObjectName = "") : this(Sides, null, ObjectName) { }
         public AvalonPolygonFactory(int Sides, List<NotSealedPoint> Info, string ObjectName = "")
@@ -21,7 +17,6 @@
             if (Info != null)
                 this.Info = Info;
         }
-        [DataMember]
         private List<NotSealedPoint> info;
         public List<NotSealedPoint> Info
         {
@@ -51,13 +46,10 @@
             return geo;
         }
     }
-    [DataContract]
-    [KnownType(typeof(NotSealedPoint))]
+
     public class AvalonArcFactory : GeometryFactory
     {
-        [DataMember]
         private int Arcs;
-        [DataMember]
         private String Error = "";
         public AvalonArcFactory(int Arcs, string Error = "") : this(Arcs, null, Error) { }
         public AvalonArcFactory(int Arcs, List<NotSealedPoint> Data, string Error = "")
@@ -67,7 +59,6 @@
             if (Data != null)
                 Info = Data;
         }
-        [DataMember]
         private List<NotSealedPoint> info;
         public List<NotSealedPoint> Info
         {
