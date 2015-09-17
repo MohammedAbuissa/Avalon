@@ -57,7 +57,6 @@
                 RenderTransform = new CompositeTransform();
                 RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);
                 Fill = new SolidColorBrush(new Color { A = 0, R = 0, G = 0, B = 0 });
-                StrokeThickness = 2;
                 this.Attach = Attach;
                 this.Detach = Detach;
                 this.Router = Router;
@@ -80,7 +79,7 @@
 
         private void Avalon_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
-            Router(sender, e);
+            //Router(sender, e);
         }
 
         private void Avalon_Unloaded(object sender, RoutedEventArgs e)
@@ -95,7 +94,6 @@
                 (Real.Parent as Panel).Children.Remove(Real);
             }
             (this.Parent as Panel).Children.Add(Real);
-
             pp = this.Parent as Panel;
         }
 
@@ -107,7 +105,7 @@
                 Real.Opacity = 0.5;
                 isActive = true;
                 Color RealColor = (Real.Fill as SolidColorBrush).Color;
-                Stroke = new SolidColorBrush(new Color { A = 255, B = (byte)(255 - RealColor.B), G = (byte)(255 - RealColor.G), R = (byte)(255 - RealColor.R) });
+                StrokeThickness = 2;
             }
         }
         public void Replaced()
@@ -121,7 +119,7 @@
                 Detach(this);
                 Real.Opacity = 1;
                 isActive = false;
-                Stroke = null;
+                StrokeThickness = 0;
             }
         }
         public void Manipulation(ManipulationDeltaRoutedEventArgs e)
